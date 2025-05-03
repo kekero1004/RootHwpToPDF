@@ -1,0 +1,125 @@
+<Window x:Class="HwpToPdf.Views.WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HwpToPdf.Views.WPF"
+        xmlns:utils="clr-namespace:HwpToPdf.Utils"
+        mc:Ignorable="d"
+        Title="HWP to PDF Converter" Height="500" Width="800"
+        WindowStartupLocation="CenterScreen"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing">
+    <Window.Resources>
+        <utils:StringStartsWithConverter x:Key="StringStartsWithConverter"/>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 상단 도구 모음 -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10" HorizontalAlignment="Left">
+            <Button x:Name="BrowseButton" Content="파일 선택" Width="100" Margin="0,0,10,0" Command="{Binding BrowseCommand}" Height="26"/>
+            <Button x:Name="BrowseFolderButton" Content="폴더 선택" Width="100" Margin="0,0,10,0" Command="{Binding BrowseFolderCommand}" Height="26"/>
+            <Button x:Name="ConvertButton" Content="변환" Width="100" Margin="0,0,10,0" Command="{Binding ConvertCommand}" Height="26"/>
+            <Button x:Name="CancelButton" Content="취소" Width="100" Margin="0,0,10,0" IsEnabled="{Binding IsConverting}" Command="{Binding CancelCommand}" Height="26"/>
+            <Button x:Name="ClearButton" Content="리스트 삭제" Width="100" Command="{Binding ClearCommand}" Height="26" />
+        </StackPanel>
+
+        <!-- PDF 저장 경로 -->
+        <Grid Grid.Row="0" Margin="10,55,10,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="PDF 저장 경로:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <TextBox Grid.Column="1" Margin="0,0,10,0" Text="{Binding Options.OutputDirectory}"/>
+            <Button Grid.Column="2" Content="찾아보기" Width="80" Command="{Binding BrowseOutputCommand}"/>
+        </Grid>
+
+        <!-- 파일 목록 -->
+        <Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" Margin="10">
+            <ListView x:Name="FileListView" Margin="5" ItemsSource="{Binding FileItems}">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="파일명" Width="200" DisplayMemberBinding="{Binding FileName}"/>
+                        <GridViewColumn Header="파일 경로" Width="350" DisplayMemberBinding="{Binding FilePath}"/>
+                        <GridViewColumn Header="변환 상태" Width="120" DisplayMemberBinding="{Binding Status}"/>
+                    </GridView>
+                </ListView.View>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Status}" Value="성공">
+                                <Setter Property="Background" Value="#E1F5E1"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Status}" Value="변환 중">
+                                <Setter Property="Background" Value="#E1E1F5"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Status, Converter={StaticResource StringStartsWithConverter}, ConverterParameter=실패}">
+                                <Setter Property="Background" Value="#F5E1E1"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Status}" Value="취소됨">
+                                <Setter Property="Background" Value="#F5F5E1"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
+        </Border>
+
+        <!-- 진행 상태 -->
+        <StackPanel Grid.Row="2" Margin="10">
+            <ProgressBar x:Name="ProgressBar" Height="20" Minimum="0" Maximum="100" Value="{Binding ProgressValue}" />
+            <TextBlock x:Name="StatusTextBlock" Margin="0,5,0,0" HorizontalAlignment="Center" Text="{Binding StatusMessage}"/>
+        </StackPanel>
+
+        <!-- 옵션 패널 -->
+        <Expander Grid.Row="3" Header="변환 옵션" Margin="10" IsExpanded="False">
+            <Grid Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="출력 디렉토리:" VerticalAlignment="Center" Margin="0,0,10,5"/>
+                <Grid Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,0,0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="OutputDirTextBox" Grid.Column="0" Margin="0,0,5,0" Text="{Binding Options.OutputDirectory}"/>
+                    <Button x:Name="BrowseOutputButton" Grid.Column="1" Content="찾아보기" Width="80" Command="{Binding BrowseOutputCommand}"/>
+                </Grid>
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="워터마크:" VerticalAlignment="Center" Margin="0,0,10,5"/>
+                <TextBox x:Name="WatermarkTextBox" Grid.Row="1" Grid.Column="1" Margin="0,0,10,5" Text="{Binding Options.Watermark}"/>
+
+                <TextBlock Grid.Row="1" Grid.Column="2" Text="페이지 범위:" VerticalAlignment="Center" Margin="0,0,10,5"/>
+                <TextBox x:Name="PageRangeTextBox" Grid.Row="1" Grid.Column="3" Margin="0,0,0,5" Text="{Binding Options.PageRange}"/>
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="압축 레벨:" VerticalAlignment="Center" Margin="0,0,10,5"/>
+                <Slider x:Name="CompressionSlider" Grid.Row="2" Grid.Column="1" Minimum="0" Maximum="9" 
+                       TickFrequency="1" IsSnapToTickEnabled="True" TickPlacement="BottomRight" Margin="0,0,10,0"
+                       Value="{Binding Options.CompressionLevel}"/>
+
+                <StackPanel Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,5,0,0">
+                    <CheckBox x:Name="OverwriteCheckBox" Content="기존 파일 덮어쓰기" Margin="0,0,15,0" IsChecked="{Binding Options.Overwrite}"/>
+                    <CheckBox x:Name="OpenAfterCheckBox" Content="변환 후 열기" Margin="0,0,15,0" IsChecked="{Binding Options.OpenAfterConversion}"/>
+                </StackPanel>
+            </Grid>
+        </Expander>
+    </Grid>
+</Window> 

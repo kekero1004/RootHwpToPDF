@@ -1,7 +1,3 @@
-# RootHwpToPDF
-한글문서를 PDF로 변환하는 SoftWare 입니다. 
-
-
 # HWP to PDF 변환기
 
 ## 소개
@@ -25,7 +21,7 @@ HWP to PDF 변환기는 한글(HWP) 문서를 PDF 형식으로 변환하는 도�
 ## 설치 방법
 
 ### 방법 1: 다운로드하여 실행
-1. [릴리스 페이지](https://github.com/kekero1004/hwptopdf/releases)에서 최신 버전의 `HwpToPdf.exe` 파일을 다운로드합니다.
+1. [릴리스 페이지](https://github.com/yourusername/hwptopdf/releases)에서 최신 버전의 `HwpToPdf.exe` 파일을 다운로드합니다.
 2. 다운로드한 파일을 원하는 위치에 저장합니다.
 3. 실행하기 전에 한글 프로그램이 설치되어 있는지 확인합니다.
 
